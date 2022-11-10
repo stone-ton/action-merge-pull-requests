@@ -1,0 +1,14 @@
+{
+  "name": "gitmerge-action",
+  "version": "1.0.0",
+  "description": "Native Github action to make merge and deploy from repo",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Gustavo Monteiro",
+  "license": "ISC",
+  "dependencies": {
+    "@actions/github": "^5.1.1"
+  }
+}

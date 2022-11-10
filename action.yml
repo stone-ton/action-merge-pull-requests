@@ -1,0 +1,18 @@
+name: 'Action GitMerge'
+description: 'Native Github action to make merge and deploy from repo.'
+inputs:
+  token:
+    description: 'Github API token'
+  owner:
+    description: 'Organization'
+    default: 'stone-ton'
+  repo:
+    description: 'Repository name'
+  sdx_branch_name:
+    default: 'sdx'
+    description: 'Name of default sandbox branch'
+
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
