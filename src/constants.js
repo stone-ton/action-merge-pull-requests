@@ -11,7 +11,7 @@ const repoInfo = {
     repo: process.env.REPO,
 }
 
-export {
+module.exports =  {
     deployBranchName,
     deployRefName,
     deployRefHead,

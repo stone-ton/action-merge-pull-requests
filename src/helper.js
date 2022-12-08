@@ -48,7 +48,7 @@ async function getPrs() {
     return prs
 }
 
-export {
+module.exports = {
     getLastCommit,
     createBranch,
     deleteBranch,
