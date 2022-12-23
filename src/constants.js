@@ -2,7 +2,7 @@ const deployBranchName = 'sdx-prs-deploy'
 const deployRefName = `heads/${deployBranchName}`
 const deployRefHead = `refs/${deployRefName}`
 
-const token = process.env.INPUT_GITHUB_TOKEN
+const token = process.env.INPUT_TOKEN
 const sdx = process.env.INPUT_SDX_BRANCH_NAME || 'sdx'
 const ref = `heads/${sdx}`
 
