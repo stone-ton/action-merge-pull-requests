@@ -8,8 +8,10 @@ const ref = `heads/${sdx}`
 
 const repoInfo = {
     owner: process.env.INPUT_OWNER,
-    repo: process.env.INPUT_REPO,
+    repo: process.env.GITHUB_REPOSITORY,
 }
+
+console.log(repoInfo);
 
 module.exports =  {
     deployBranchName,
