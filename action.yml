@@ -3,14 +3,12 @@ description: 'Native Github action to make merge and deploy from repo.'
 inputs:
   token:
     description: 'Github API token'
-  owner:
-    description: 'Organization'
-    default: 'stone-ton'
-  repo:
-    description: 'Repository name'
-  sdx_branch_name:
+  base:
     default: 'sdx'
-    description: 'Name of default sandbox branch'
+    description: 'Name of base branch'
+  work-branch-name:
+    default: 'sdx-prs-deploy'
+    description: 'Name of branch will be created from base branch to merge PRs'
 
 
 runs:

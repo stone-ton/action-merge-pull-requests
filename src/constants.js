@@ -1,17 +1,14 @@
-const deployBranchName = 'sdx-prs-deploy'
+const deployBranchName = process.env.INPUT_WORK_BRANCH_NAME
 const deployRefName = `heads/${deployBranchName}`
 const deployRefHead = `refs/${deployRefName}`
 
 const token = process.env.INPUT_TOKEN
-const sdx = process.env.INPUT_SDX_BRANCH_NAME || 'sdx'
+const sdx = process.env.INPUT_BASE
 const ref = `heads/${sdx}`
 
-const repoInfo = {
-    owner: process.env.INPUT_OWNER,
-    repo: process.env.GITHUB_REPOSITORY,
-}
+const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/')
 
-console.log(repoInfo);
+const repoInfo = { owner, repo }
 
 module.exports =  {
     deployBranchName,
