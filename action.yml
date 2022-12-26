@@ -3,10 +3,10 @@ description: 'Native Github action to make merge and deploy from repo.'
 inputs:
   token:
     description: 'Github API token'
-  base:
-    default: 'sdx'
+  pull-requests-base-branch:
+    default: 'master'
     description: 'Name of base branch'
-  work-branch-name:
+  merge-push-on:
     default: 'sdx-prs-deploy'
     description: 'Name of branch will be created from base branch to merge PRs'
 
