@@ -14,16 +14,16 @@ async function getLastCommit() {
 }
 
 async function createBranch(commitSha) {
-    const timestamp = new Date().getDate()
+    const timestamp = new Date().getTime()
     const branchName = `${deployRefHead}-${timestamp}`
 
+    console.log(`Creating branch ${branchName}`)
     await octokit.rest.git.createRef({
         ...repoInfo,
         ref: branchName,
         sha: commitSha
     })
 
-    console.log(`Creating branch ${branchName}`)
     return branchName
 }
 
