@@ -45,7 +45,6 @@ async function getPrs() {
     const { data } = await octokit.rest.pulls.list({
         ...repoInfo,
         base: target,
-        page
     })
 
     const prs = data.filter(pr => !pr.draft)
