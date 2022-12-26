@@ -3,7 +3,7 @@ const { getLastCommit, createBranch, deleteBranch, getPrs, mergeBranchs, updateD
 async function run() {
     const baseLastCommit = await getLastCommit()
 
-    const workBranchName = await createBranch(baseLastCommit.sha)
+    const workBranchName = await createBranch(baseLastCommit)
 
     const pullRequests = await getPrs()
 

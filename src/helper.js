@@ -8,9 +8,9 @@ async function getLastCommit() {
         ...repoInfo,
         ref: ref
     })
-    return data.sdxLastCommit
-
     console.log(`Getting commit ${data.commit.message}`);
+    return data.sha
+
 }
 
 async function createBranch(commitSha) {
