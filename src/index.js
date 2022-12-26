@@ -3,7 +3,7 @@ const { getLastCommit, createBranch, deleteBranch, getPrs, mergeBranchs, updateD
 async function run() {
     const baseLastCommit = await getLastCommit()
 
-    const workBranchName = await createBranch(baseLastCommit)
+    await createBranch(baseLastCommit)
 
     const pullRequests = await getPrs()
 
@@ -11,8 +11,8 @@ async function run() {
     let lastMergeCommitSha
     for (let pull of pullRequests) {
         try {
-            console.log(`Merging PR ${pull.id}`);
-            const { data } = await mergeBranchs(pull.head.ref, workBranchName)
+            console.log(`Merging PR ${pull.number}`);
+            const { data } = await mergeBranchs(pull.head.ref)
             lastMergeCommitSha = data.sha
         } catch (error) {
             console.error(error.response.data.message)

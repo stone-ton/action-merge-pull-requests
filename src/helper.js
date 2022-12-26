@@ -1,7 +1,10 @@
 const github = require('@actions/github')
 
-const { deployBranchName, deployRefHead, deployRefName, repoInfo, token, target, ref } = require('./constants')
+const { deployRefHead, deployRefName, repoInfo, token, target, ref } = require('./constants')
 const octokit = github.getOctokit(token)
+
+const timestamp = new Date().getTime()
+const branchName = `${deployRefHead}-${timestamp}`
 
 async function getLastCommit() {
     const { data } = await octokit.rest.repos.getCommit({
@@ -14,17 +17,12 @@ async function getLastCommit() {
 }
 
 async function createBranch(commitSha) {
-    const timestamp = new Date().getTime()
-    const branchName = `${deployRefHead}-${timestamp}`
-
     console.log(`Creating branch ${branchName}`)
     await octokit.rest.git.createRef({
         ...repoInfo,
         ref: branchName,
         sha: commitSha
     })
-
-    return branchName
 }
 
 async function deleteBranch(branchName) {
@@ -35,10 +33,10 @@ async function deleteBranch(branchName) {
     console.log('Deploy branch deleted')
 }
 
-async function mergeBranchs(pullHeadRef, deployBranchName) {
+async function mergeBranchs(pullHeadRef) {
     return await octokit.rest.repos.merge({
         ...repoInfo,
-        base: deployBranchName,
+        base: branchName,
         head: pullHeadRef,
     })
 }
