@@ -4,11 +4,13 @@ const { deployBranchName, deployRefHead, deployRefName, repoInfo, token, target,
 const octokit = github.getOctokit(token)
 
 async function getLastCommit() {
-    const { data: sdxLastCommit } = await octokit.rest.repos.getCommit({
+    const { data } = await octokit.rest.repos.getCommit({
         ...repoInfo,
         ref: ref
     })
-    return sdxLastCommit
+    return data.sdxLastCommit
+
+    console.log(`Getting commit ${data.commit.message}`);
 }
 
 async function createBranch(commitSha) {
@@ -21,7 +23,7 @@ async function createBranch(commitSha) {
         sha: commitSha
     })
 
-    console.log('Deploy branch created')
+    console.log(`Creating branch ${branchName}`)
     return branchName
 }
 

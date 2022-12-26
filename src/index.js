@@ -11,6 +11,7 @@ async function run() {
     let lastMergeCommitSha
     for (let pull of pullRequests) {
         try {
+            console.log(`Merging PR ${pull.id}`);
             const { data } = await mergeBranchs(pull.head.ref, workBranchName)
             lastMergeCommitSha = data.sha
         } catch (error) {
@@ -19,7 +20,7 @@ async function run() {
         }
     }
 
-    await updateDeployRef(sha)
+    await updateDeployRef(lastMergeCommitSha)
 
     await deleteBranch(workBranchName)
 }
