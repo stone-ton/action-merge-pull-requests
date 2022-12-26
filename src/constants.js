@@ -1,10 +1,10 @@
-const deployBranchName = process.env.INPUT_WORK_BRANCH_NAME
+const deployBranchName = process.env.INPUT_MERGE_PUSH_ON
 const deployRefName = `heads/${deployBranchName}`
 const deployRefHead = `refs/${deployRefName}`
 
 const token = process.env.INPUT_TOKEN
-const sdx = process.env.INPUT_BASE
-const ref = `heads/${sdx}`
+const target = process.env.INPUT_PULL_REQUESTS_BASE_BRANCH
+const ref = `heads/${target}`
 
 const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/')
 
@@ -16,5 +16,6 @@ module.exports =  {
     deployRefHead,
     repoInfo,
     token,
+    target,
     ref,
 }

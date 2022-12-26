@@ -1,6 +1,6 @@
 const github = require('@actions/github')
 
-const { deployBranchName, deployRefHead, deployRefName, repoInfo, token, ref } = require('./constants')
+const { deployBranchName, deployRefHead, deployRefName, repoInfo, token, target, ref } = require('./constants')
 const octokit = github.getOctokit(token)
 
 async function getLastCommit() {
@@ -12,24 +12,29 @@ async function getLastCommit() {
 }
 
 async function createBranch(commitSha) {
+    const timestamp = new Date().getDate()
+    const branchName = `${deployRefHead}-${timestamp}`
+
     await octokit.rest.git.createRef({
         ...repoInfo,
-        ref: deployRefHead,
+        ref: branchName,
         sha: commitSha
     })
+
     console.log('Deploy branch created')
+    return branchName
 }
 
-async function deleteBranch() {
+async function deleteBranch(branchName) {
     await octokit.rest.git.deleteRef({
         ...repoInfo,
-        ref: deployRefName
+        ref: branchName
     })
     console.log('Deploy branch deleted')
 }
 
-async function mergeBranchs(pullHeadRef) {
-    await octokit.rest.repos.merge({
+async function mergeBranchs(pullHeadRef, deployBranchName) {
+    return await octokit.rest.repos.merge({
         ...repoInfo,
         base: deployBranchName,
         head: pullHeadRef,
@@ -39,7 +44,8 @@ async function mergeBranchs(pullHeadRef) {
 async function getPrs() {
     const { data } = await octokit.rest.pulls.list({
         ...repoInfo,
-        base: 'sdx'
+        base: target,
+        page
     })
 
     const prs = data.filter(pr => !pr.draft)
@@ -48,7 +54,17 @@ async function getPrs() {
     return prs
 }
 
+async function updateDeployRef(commitSha) {
+    await octokit.rest.git.updateRef({
+        ...repoInfo,
+        ref: deployRefName,
+        sha: commitSha,
+        force: true
+    })
+}
+
 module.exports = {
+    updateDeployRef,
     getLastCommit,
     createBranch,
     deleteBranch,

@@ -1,27 +1,27 @@
-const { getLastCommit, createBranch, deleteBranch, getPrs, mergeBranchs } = require('./helper')
+const { getLastCommit, createBranch, deleteBranch, getPrs, mergeBranchs, updateDeployRef } = require('./helper')
 
 async function run() {
-    const sdxLastCommit = await getLastCommit()
+    const baseLastCommit = await getLastCommit()
 
-    try {        
-        await createBranch(sdxLastCommit.sha)
-    } catch (error) {
-        await deleteBranch()
-        await createBranch(sdxLastCommit.sha)
-    }
+    const workBranchName = await createBranch(baseLastCommit.sha)
 
     const pullRequests = await getPrs()
 
-    // Check if all prs can be merged together in SDX based branch
+
+    let lastMergeCommitSha
     for (let pull of pullRequests) {
         try {
-            await mergeBranchs(pull.head.ref)
+            const { data } = await mergeBranchs(pull.head.ref, workBranchName)
+            lastMergeCommitSha = data.sha
         } catch (error) {
             console.error(error.response.data.message)
             throw new Error('Merge conflict')
         }
     }
-    console.log('Merge Success!');
+
+    await updateDeployRef(sha)
+
+    await deleteBranch(workBranchName)
 }
 
 run()

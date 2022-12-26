@@ -7,7 +7,7 @@ inputs:
     default: 'master'
     description: 'Name of base branch'
   merge-push-on:
-    default: 'sdx-prs-deploy'
+    default: 'sdx'
     description: 'Name of branch will be created from base branch to merge PRs'
 
 
