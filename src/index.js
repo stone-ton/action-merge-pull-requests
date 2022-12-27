@@ -11,8 +11,11 @@ async function run() {
     let lastMergeCommitSha
     for (let pull of pullRequests) {
         try {
-            console.log(`Merging PR ${pull.number}`);
+            console.log(`Merging PR ${pull.number}`)
             const { data } = await mergeBranchs(pull.head.ref)
+
+            console.log(`Successful merge PR ${pull.number}`);
+            
             lastMergeCommitSha = data.sha
         } catch (error) {
             console.error(error.response.data.message)

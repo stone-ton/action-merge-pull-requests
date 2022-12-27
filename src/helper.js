@@ -4,41 +4,45 @@ const { deployRefHead, deployRefName, repoInfo, token, target, ref, deployBranch
 const octokit = github.getOctokit(token)
 
 const timestamp = new Date().getTime()
-const branchName = `${deployRefHead}-${timestamp}`
+const auxBranchName = `${deployRefHead}-${timestamp}`
 
-async function getLastCommit() {
+async function getLastCommitSha() {
+    console.log(`Getting last commit from branch ${ref}`);
+
     const { data } = await octokit.rest.repos.getCommit({
         ...repoInfo,
         ref: ref
     })
-    console.log(`Getting commit ${data.commit.message}`);
-    return data.sha
 
+    console.log(`Successful get commit.
+    Commit message: ${data.commit.message}`);
+
+    return data.sha
 }
 
-async function createBranch(commitSha) {
-    console.log(`Creating branch ${branchName}`)
-    await octokit.rest.git.createRef({
-        ...repoInfo,
-        ref: branchName,
-        sha: commitSha
-    })
+async function createAuxBranch(commitSha) {
+    console.log(`Creating branch ${auxBranchName}`)
+    await createBranch(auxBranchName, commitSha)
+    console.log(`Successful create branch`)
 
-    return branchName
+    return auxBranchName
 }
 
 async function deleteBranch(branchName) {
+    console.log(`Deleting branch ${branchName}`)
+
     await octokit.rest.git.deleteRef({
         ...repoInfo,
         ref: branchName
     })
-    console.log('Deploy branch deleted')
+
+    console.log('Successful delete branch')
 }
 
 async function mergeBranchs(pullHeadRef) {
     return await octokit.rest.repos.merge({
         ...repoInfo,
-        base: branchName,
+        base: auxBranchName,
         head: pullHeadRef
     })
 }
@@ -55,8 +59,13 @@ async function getPrs() {
     return prs
 }
 
-async function updateDeployRef() {
-    console.log(`Creating branch ${branchName}`)
+async function recreateDeployBranch(commitSha) {
+    console.log(`Creating branch ${deployRefHead}`)
+    await createBranch(deployRefHead, commitSha)
+    console.log(`Successful create branch`)
+}
+
+async function createBranch(branchName, commitSha) {
     await octokit.rest.git.createRef({
         ...repoInfo,
         ref: branchName,
@@ -65,9 +74,9 @@ async function updateDeployRef() {
 }
 
 module.exports = {
-    updateDeployRef,
-    getLastCommit,
-    createBranch,
+    updateDeployRef: recreateDeployBranch,
+    getLastCommit: getLastCommitSha,
+    createBranch: createAuxBranch,
     deleteBranch,
     mergeBranchs,
     getPrs,
