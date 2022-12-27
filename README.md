@@ -15,23 +15,19 @@ git push -f origin HEAD:merge-push-on
 ```
 
 ```
-git checkout -b merge-push-on-${timestamp} origin/pull-requests-base-branch
-git fetch prs-to-pull-requests-base-branch
-for pr in prs
-    git merge pr on merge-push-on-${timestamp}
-    if conflict 
-        return error
+exemplo com:
+    merge-push-on = sdx
+    pull-requests-base-branch = master
 
-git push -f origin HEAD:merge-push-on
-```
-
-```
 git checkout -b sdx-${timestamp} origin/master
 git fetch prs-to-master
 for pr in prs
     git merge pr on sdx-${timestamp}
-    if conflict 
+    if conflict
+        git branch -d sdx-${timestamp}
         return error
 
-git push -f origin HEAD:merge-push-on
+git branch -d sdx
+git checkout -b sdx
+git branch -d sdx-${timestamp}
 ```

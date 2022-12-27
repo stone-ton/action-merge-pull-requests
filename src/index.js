@@ -3,7 +3,7 @@ const { getLastCommit, createBranch, deleteBranch, getPrs, mergeBranchs, updateD
 async function run() {
     const baseLastCommit = await getLastCommit()
 
-    await createBranch(baseLastCommit)
+    const workBranchName = await createBranch(baseLastCommit)
 
     const pullRequests = await getPrs()
 
@@ -16,6 +16,7 @@ async function run() {
             lastMergeCommitSha = data.sha
         } catch (error) {
             console.error(error.response.data.message)
+            await deleteBranch(workBranchName)
             throw new Error('Merge conflict')
         }
     }
