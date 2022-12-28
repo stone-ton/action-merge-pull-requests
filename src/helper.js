@@ -74,9 +74,9 @@ async function createBranch(branchName, commitSha) {
 }
 
 module.exports = {
-    updateDeployRef: recreateDeployBranch,
-    getLastCommit: getLastCommitSha,
-    createBranch: createAuxBranch,
+    recreateDeployBranch,
+    getLastCommitSha,
+    createAuxBranch,
     deleteBranch,
     mergeBranchs,
     getPrs,
