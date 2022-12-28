@@ -61,6 +61,7 @@ async function getPrs() {
 
 async function recreateDeployBranch(commitSha) {
     console.log(`Creating branch ${deployRefHead}`)
+    await deleteBranch(deployRefHead)
     await createBranch(deployRefHead, commitSha)
     console.log(`Successful create branch`)
 }
