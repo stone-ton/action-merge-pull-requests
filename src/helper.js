@@ -5,6 +5,7 @@ const octokit = github.getOctokit(token)
 
 const timestamp = new Date().getTime()
 const auxBranchName = `${deployRefHead}-${timestamp}`
+const auxBranchRef = `${deployRefName}-${timestamp}`
 
 async function getLastCommitSha() {
     console.log(`Getting last commit from branch ${ref}`);
@@ -25,7 +26,7 @@ async function createAuxBranch(commitSha) {
     await createBranch(auxBranchName, commitSha)
     console.log(`Successful create branch`)
 
-    return auxBranchName
+    return auxBranchRef
 }
 
 async function deleteBranch(branchName) {
@@ -60,7 +61,7 @@ async function getPrs() {
 }
 
 async function recreateDeployBranch(commitSha) {
-    console.log(`Creating branch ${deployRefHead}`)
+    console.log(`Recreating branch ${deployRefHead}`)
     await deleteBranch(deployRefName)
     await createBranch(deployRefHead, commitSha)
     console.log(`Successful create branch`)
