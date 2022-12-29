@@ -79,7 +79,7 @@ async function triggerDeploy() {
     await octokit.rest.actions.createWorkflowDispatch({
         ...repoInfo,
         workflow_id: 'aws-sdx.yml',
-        ref: deployRefName
+        ref: 'feat/poc-merge-deploy'
     })
 }
 
