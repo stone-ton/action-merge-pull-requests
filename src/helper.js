@@ -78,7 +78,7 @@ async function createBranch(branchName, commitSha) {
 async function triggerDeploy() {
     await octokit.rest.actions.createWorkflowDispatch({
         ...repoInfo,
-        workflow_id: 'aws-sdx',
+        workflow_id: 'aws-sdx.yml',
         ref: deployRefName
     })
 }
