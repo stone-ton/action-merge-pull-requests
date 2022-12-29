@@ -1,6 +1,6 @@
 const github = require('@actions/github')
 
-const { deployRefHead, deployRefName, repoInfo, token, target, ref, deployBranchName } = require('./constants')
+const { deployRefHead, deployRefName, repoInfo, token, target, ref, deployBranchName, workflowSourceBranch, deployWorkflow } = require('./constants')
 const octokit = github.getOctokit(token)
 
 const timestamp = new Date().getTime()
@@ -76,11 +76,20 @@ async function createBranch(branchName, commitSha) {
 }
 
 async function triggerDeploy() {
+    console.log('Triggering Deployment Proccess')
+
+    if (!deployWorkflow || !workflowSourceBranch) {
+        console.log('No Deployment proccess configured')
+        return
+    }
+
+    console.log(`Tiggering workflow ${deployWorkflow} from branch ${workflowSourceBranch}`)
     await octokit.rest.actions.createWorkflowDispatch({
         ...repoInfo,
-        workflow_id: 'aws-sdx.yml',
-        ref: 'feat/poc-merge-deploy'
+        workflow_id: deployWorkflow,
+        ref: workflowSourceBranch
     })
+    console.log('Successful triggered workflow');
 }
 
 
