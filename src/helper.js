@@ -75,11 +75,20 @@ async function createBranch(branchName, commitSha) {
     })
 }
 
+async function triggerDeploy() {
+    await octokit.rest.actions.createWorkflowDispatch({
+        ...repoInfo,
+        workflow_id: 'aws-sdx'
+    })
+}
+
+
 module.exports = {
     recreateDeployBranch,
     getLastCommitSha,
     createAuxBranch,
     deleteBranch,
     mergeBranchs,
+    triggerDeploy,
     getPrs,
 }
