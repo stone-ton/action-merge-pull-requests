@@ -9,11 +9,6 @@ inputs:
   merge_push_on:
     default: 'sdx'
     description: 'Name of branch will be created from base branch to merge PRs'
-  deploy_workflow:
-    description: 'File name from workflow to run if successfull merge PRs'
-  workflow_branch_origin:
-    default: master
-    description: Source branch from deploy workflow file
 
 
 runs:

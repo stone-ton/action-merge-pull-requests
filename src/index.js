@@ -1,4 +1,4 @@
-const { getLastCommitSha, createAuxBranch, deleteBranch, getPrs, mergeBranchs, recreateDeployBranch, triggerDeploy } = require('./helper')
+const { getLastCommitSha, createAuxBranch, deleteBranch, getPrs, mergeBranchs, recreateDeployBranch } = require('./helper')
 
 async function run() {
     const baseLastCommit = await getLastCommitSha()
@@ -27,8 +27,6 @@ async function run() {
     await recreateDeployBranch(lastMergeCommitSha)
 
     await deleteBranch(workBranchName)
-
-    await triggerDeploy()
 }
 
 run()

@@ -10,13 +10,8 @@ const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/')
 
 const repoInfo = { owner, repo }
 
-const deployWorkflow = process.env.INPUT_DEPLOY_WORKFLOW
-const workflowSourceBranch = process.env.INPUT_WORKFLOW_BRANCH_ORIGIN
-
 module.exports =  {
     deployBranchName,
-    deployWorkflow,
-    workflowSourceBranch,
     deployRefName,
     deployRefHead,
     repoInfo,
