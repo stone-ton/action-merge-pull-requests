@@ -1,6 +1,6 @@
 const github = require('@actions/github')
 
-const { deployRefHead, deployRefName, repoInfo, token, target, ref, deployBranchName } = require('./constants')
+const { deployRefHead, deployRefName, repoInfo, token, target, ref } = require('./constants')
 const octokit = github.getOctokit(token)
 
 const timestamp = new Date().getTime()
@@ -74,6 +74,7 @@ async function createBranch(branchName, commitSha) {
         sha: commitSha
     })
 }
+
 
 module.exports = {
     recreateDeployBranch,
