@@ -17,10 +17,8 @@ async function run() {
             console.log(`Successful merge PR ${pull.number}`);
             
             lastMergeCommitSha = data.sha
-        } catch (error) {
-            console.error(error.response.data.message)
+        } finally {
             await deleteBranch(workBranchName)
-            throw new Error('Merge conflict')
         }
     }
 
