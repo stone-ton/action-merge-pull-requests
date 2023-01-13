@@ -1,6 +1,6 @@
 {
   "name": "gitmerge-action",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Native Github action to make merge and deploy from repo",
   "main": "index.js",
   "scripts": {
