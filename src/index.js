@@ -7,24 +7,20 @@ async function run() {
 
     const pullRequests = await getPrs()
 
-
-    let lastMergeCommitSha
-    for (let pull of pullRequests) {
-        try {
+    try {
+        let lastMergeCommitSha
+        for (let pull of pullRequests) {
             console.log(`Merging PR ${pull.number}`)
             const { data } = await mergeBranchs(pull.head.ref)
 
             console.log(`Successful merge PR ${pull.number}`);
             
             lastMergeCommitSha = data.sha
-        } finally {
-            await deleteBranch(workBranchName)
         }
+        await recreateDeployBranch(lastMergeCommitSha)
+    } finally {
+        await deleteBranch(workBranchName)
     }
-
-    await recreateDeployBranch(lastMergeCommitSha)
-
-    await deleteBranch(workBranchName)
 }
 
 run()
