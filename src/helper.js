@@ -1,45 +1,57 @@
 const github = require('@actions/github')
 
-const { deployBranchName, deployRefHead, deployRefName, repoInfo, token, ref } = require('./constants')
+const { deployRefHead, deployRefName, repoInfo, token, target, ref } = require('./constants')
 const octokit = github.getOctokit(token)
 
-async function getLastCommit() {
-    const { data: sdxLastCommit } = await octokit.rest.repos.getCommit({
+const timestamp = new Date().getTime()
+const auxBranchName = `${deployRefHead}-${timestamp}`
+const auxBranchRef = `${deployRefName}-${timestamp}`
+
+async function getLastCommitSha() {
+    console.log(`Getting last commit from branch ${ref}`);
+
+    const { data } = await octokit.rest.repos.getCommit({
         ...repoInfo,
         ref: ref
     })
-    return sdxLastCommit
+
+    console.log(`Successful get commit.
+    Commit message: ${data.commit.message}`);
+
+    return data.sha
 }
 
-async function createBranch(commitSha) {
-    await octokit.rest.git.createRef({
-        ...repoInfo,
-        ref: deployRefHead,
-        sha: commitSha
-    })
-    console.log('Deploy branch created')
+async function createAuxBranch(commitSha) {
+    console.log(`Creating branch ${auxBranchName}`)
+    await createBranch(auxBranchName, commitSha)
+    console.log(`Successful create branch`)
+
+    return auxBranchRef
 }
 
-async function deleteBranch() {
+async function deleteBranch(branchName) {
+    console.log(`Deleting branch ${branchName}`)
+
     await octokit.rest.git.deleteRef({
         ...repoInfo,
-        ref: deployRefName
+        ref: branchName
     })
-    console.log('Deploy branch deleted')
+
+    console.log('Successful delete branch')
 }
 
 async function mergeBranchs(pullHeadRef) {
-    await octokit.rest.repos.merge({
+    return await octokit.rest.repos.merge({
         ...repoInfo,
-        base: deployBranchName,
-        head: pullHeadRef,
+        base: auxBranchName,
+        head: pullHeadRef
     })
 }
 
 async function getPrs() {
     const { data } = await octokit.rest.pulls.list({
         ...repoInfo,
-        base: 'sdx'
+        base: target,
     })
 
     const prs = data.filter(pr => !pr.draft)
@@ -48,9 +60,26 @@ async function getPrs() {
     return prs
 }
 
+async function recreateDeployBranch(commitSha) {
+    console.log(`Recreating branch ${deployRefHead}`)
+    await deleteBranch(deployRefName)
+    await createBranch(deployRefHead, commitSha)
+    console.log(`Successful create branch`)
+}
+
+async function createBranch(branchName, commitSha) {
+    await octokit.rest.git.createRef({
+        ...repoInfo,
+        ref: branchName,
+        sha: commitSha
+    })
+}
+
+
 module.exports = {
-    getLastCommit,
-    createBranch,
+    recreateDeployBranch,
+    getLastCommitSha,
+    createAuxBranch,
     deleteBranch,
     mergeBranchs,
     getPrs,
