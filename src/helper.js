@@ -80,8 +80,7 @@ async function conflictDetails(base, head) {
         ...repoInfo,
         basehead: `${base}...${head}`,
         mediaType: {
-            format: 'html',
-            previews: ['vnd.github.merge-info-preview']
+            format: 'vnd.github.merge-info-preview'
         }
     })
     console.log(res);
