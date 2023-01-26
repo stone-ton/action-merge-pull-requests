@@ -79,7 +79,10 @@ async function conflictDetails(base, head) {
     const res = await octokit.request('GET /repos/{owner}/{repo}/compare/{basehead}{?page,per_page}', {
         ...repoInfo,
         basehead: `${base}...${head}`,
-        mediaType: 'application/vnd.github.html'
+        mediaType: {
+            format: 'html',
+            previews: ['vnd.github.merge-info-preview']
+        }
     })
     console.log(res);
 }
