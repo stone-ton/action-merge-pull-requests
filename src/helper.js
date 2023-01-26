@@ -78,7 +78,8 @@ async function createBranch(branchName, commitSha) {
 async function conflictDetails(base, head) {
     const res = await octokit.request('GET /repos/{owner}/{repo}/compare/{basehead}{?page,per_page}', {
         ...repoInfo,
-        basehead: `${base}...${head}`
+        basehead: `${base}...${head}`,
+        mediaType: 'application/vnd.github.html'
     })
     console.log(res);
 }
