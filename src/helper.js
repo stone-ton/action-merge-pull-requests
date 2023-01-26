@@ -75,10 +75,19 @@ async function createBranch(branchName, commitSha) {
     })
 }
 
+async function conflictDetails(base, head) {
+    const res = await octokit.request('GET /repos/{owner}/{repo}/compare/{basehead}{?page,per_page}', {
+        ...repoInfo,
+        basehead: `${base}...${head}`
+    })
+    console.log(res);
+}
+
 
 module.exports = {
     recreateDeployBranch,
     getLastCommitSha,
+    conflictDetails,
     createAuxBranch,
     deleteBranch,
     mergeBranchs,
