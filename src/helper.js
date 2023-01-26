@@ -1,6 +1,6 @@
 const github = require('@actions/github')
 
-const { deployRefHead, deployRefName, repoInfo, token, target, ref } = require('./constants')
+const { deployRefHead, deployRefName, repoInfo, token, target, ref, deployBranchName } = require('./constants')
 const octokit = github.getOctokit(token)
 
 const timestamp = new Date().getTime()
@@ -54,9 +54,22 @@ async function getPrs() {
         base: target,
     })
 
-    const prs = data.filter(pr => !pr.draft)
-    console.log(`Loading ${prs.length} PRs`)
+    const prs = data.filter(async(pr) => {
+        return !pr.draft
+    })
     
+    const promises = prs.map(async(pr) => {
+        const conclusions = await octokit.request('GET /repos/{owner}/{repo}/commits/{ref}/check-runs', {
+            ...repoInfo,
+            ref: pr.head.ref
+        })
+        return conclusions.data
+    })
+
+    const responses = await Promise.all(promises)
+    console.log(responses)
+
+    console.log(`Loading ${prs.length} PRs`)
     return prs
 }
 
@@ -75,10 +88,29 @@ async function createBranch(branchName, commitSha) {
     })
 }
 
+async function conflictDetails(head) {
+    const base = `${deployBranchName}-${timestamp}`
+    const res = await octokit.request('GET /repos/{owner}/{repo}/compare/{basehead}{?page,per_page}', {
+        ...repoInfo,
+        basehead: `${base}...${head}`,
+        mediaType: {
+            format: 'vnd.github.merge-info-preview'
+        }
+    })
+    const { data: { html_url, permalink_url, diff_url, patch_url } } = res
+    console.log(`Para conferir detalhes do conflito veja os links: 
+        html_url: ${html_url},
+        permalink_url: ${permalink_url},
+        diff_url: ${diff_url},
+        patch_url: ${patch_url},
+    `);
+}
+
 
 module.exports = {
     recreateDeployBranch,
     getLastCommitSha,
+    conflictDetails,
     createAuxBranch,
     deleteBranch,
     mergeBranchs,
