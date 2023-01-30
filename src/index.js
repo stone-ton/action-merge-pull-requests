@@ -22,7 +22,7 @@ async function run() {
         }
         await recreateDeployBranch(lastMergeCommitSha)
     } catch(error) {
-        await conflictDetails(workBranchName, lastBranchToMerge)
+        await conflictDetails(lastBranchToMerge)
     } finally {
         // await deleteBranch(workBranchName)
     }
