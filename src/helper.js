@@ -60,7 +60,7 @@ async function getPrs() {
     console.log(`Loading ${prs.length} PRs`)
 
     prs.map(async(pr) => {
-        const conclusions = await octokit.request('GET /repos/:owner/:repo/commits/:ref/check-runs', {
+        const conclusions = await octokit.request('GET /repos/{owner}/{repo}/commits/{ref}/check-runs', {
             ...repoInfo,
             ref: pr.head.ref
         })
