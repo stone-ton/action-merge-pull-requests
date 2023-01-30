@@ -31,12 +31,18 @@ async function createAuxBranch(commitSha) {
 async function deleteBranch(branchName) {
     console.log(`Deleting branch ${branchName}`)
 
-    await octokit.rest.git.deleteRef({
-        ...repoInfo,
-        ref: branchName
-    })
-
-    console.log('Successful delete branch')
+    try {
+        await octokit.rest.git.deleteRef({
+            ...repoInfo,
+            ref: branchName,
+        })   
+        console.log('Successful delete branch')
+    } catch (error) {
+        if (error.message !== 'Reference does not exist') {
+            throw Error('Unexpected error on delete branch')
+        }
+        console.warn('Branch does not exists');
+    }
 }
 
 async function mergeBranchs(pullHeadRef) {
