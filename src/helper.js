@@ -73,7 +73,10 @@ async function getPrs() {
             return ['action_required', 'failure'].includes(check.conclusion)
         }).length > 0
 
-        if (hasFailureChecks) return null
+        if (hasFailureChecks) {
+            console.log(`PR ${res.pr.number} because it has failing checks`);
+            return null
+        }
         return res.pr
     }).filter( pr => pr)
 
