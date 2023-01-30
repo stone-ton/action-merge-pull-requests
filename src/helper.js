@@ -15,8 +15,7 @@ async function getLastCommitSha() {
         ref: ref
     })
 
-    console.log(`Successful get commit.
-    Commit message: ${data.commit.message}`);
+    console.log(`Successful get commit with message: ${data.commit.message}`);
 
     return data.sha
 }
@@ -74,7 +73,7 @@ async function getPrs() {
         }).length > 0
 
         if (hasFailureChecks) {
-            console.log(`PR ${res.pr.number} because it has failing checks`);
+            console.log(`Skiping PR ${res.pr.number} because it has failing checks`);
             return null
         }
         return res.pr
