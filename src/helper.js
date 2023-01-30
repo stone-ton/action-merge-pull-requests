@@ -1,3 +1,4 @@
+const core = require('@actions/core')
 const github = require('@actions/github')
 
 const { deployRefHead, deployRefName, repoInfo, token, target, ref, deployBranchName } = require('./constants')
@@ -8,40 +9,40 @@ const auxBranchName = `${deployRefHead}-${timestamp}`
 const auxBranchRef = `${deployRefName}-${timestamp}`
 
 async function getLastCommitSha() {
-    console.log(`Getting last commit from branch ${ref}`);
+    core.info(`Getting last commit from branch ${ref}`);
 
     const { data } = await octokit.rest.repos.getCommit({
         ...repoInfo,
         ref: ref
     })
 
-    console.log(`Successful get commit with message: ${data.commit.message}`);
+    core.info(`Successful get commit with message: ${data.commit.message}`);
 
     return data.sha
 }
 
 async function createAuxBranch(commitSha) {
-    console.log(`Creating branch ${auxBranchName}`)
+    core.info(`Creating branch ${auxBranchName}`)
     await createBranch(auxBranchName, commitSha)
-    console.log(`Successful create branch`)
+    core.info(`Successful create branch`)
 
     return auxBranchRef
 }
 
 async function deleteBranch(branchName) {
-    console.log(`Deleting branch ${branchName}`)
+    core.info(`Deleting branch ${branchName}`)
 
     try {
         await octokit.rest.git.deleteRef({
             ...repoInfo,
             ref: branchName,
         })   
-        console.log('Successful delete branch')
+        core.info('Successful delete branch')
     } catch (error) {
         if (error.message !== 'Reference does not exist') {
             throw Error('Unexpected error on delete branch')
         }
-        console.warn('Branch does not exists');
+        core.warning('Branch does not exists');
     }
 }
 
@@ -81,7 +82,7 @@ async function getPrs() {
         if (ms.mergeable) {
             return ms.pr
         }
-        console.log(`Skiping PR ${ms.pr.number} because it's not mergeable`);
+        core.info(`Skiping PR ${ms.pr.number} because it's not mergeable`);
         return null
     }). filter(pr => pr)
     
@@ -101,25 +102,25 @@ async function getPrs() {
 
     prs = checksResponses.map(res => {
         const hasFailureChecks = res.checks.check_runs.filter(check => {
-            return ['action_required', 'failure'].includes(check.conclusion)
+            return ['action_required', 'cancelled', 'timed_out', 'failure'].includes(check.conclusion)
         }).length > 0
 
         if (hasFailureChecks) {
-            console.log(`Skiping PR ${res.pr.number} because it has failing checks`);
+            core.info(`Skiping PR ${res.pr.number} because it has failing checks`);
             return null
         }
         return res.pr
-    }).filter( pr => pr)
+    }).filter(pr => pr)
 
-    console.log(`Loading ${prs.length} PRs`)
+    core.info(`Loading ${prs.length} PRs`)
     return prs
 }
 
 async function recreateDeployBranch(commitSha) {
-    console.log(`Recreating branch ${deployRefHead}`)
+    core.info(`Recreating branch ${deployRefHead}`)
     await deleteBranch(deployRefName)
     await createBranch(deployRefHead, commitSha)
-    console.log(`Successful create branch`)
+    core.info(`Successful create branch`)
 }
 
 async function createBranch(branchName, commitSha) {
@@ -140,12 +141,12 @@ async function conflictDetails(head) {
         }
     })
     const { data: { html_url, permalink_url, diff_url, patch_url } } = res
-    console.log(`Para conferir detalhes do conflito veja os links: 
+    core.setFailed(`Para conferir detalhes do conflito veja os links: 
         html_url: ${html_url},
         permalink_url: ${permalink_url},
         diff_url: ${diff_url},
         patch_url: ${patch_url},
-    `);
+    `)
 }
 
 
