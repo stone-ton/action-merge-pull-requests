@@ -53,23 +53,34 @@ async function getPrs() {
         base: target,
     })
 
+    // Filtering draft PRs
     let prs = data.filter(pr => !pr.draft)
 
-    const merges = prs.map(async(pr) => {
+    // Filtering PRs with merge conflicts with base or pending required reviews
+    const mergeableStatuses = prs.map(async(pr) => {
         const res = await octokit.request('GET /repos/{owner}/{repo}/pulls/{pull_number}', {
             ...repoInfo,
             pull_number: pr.number
         })
         
-        console.log( {
-            pr: pr.number,
+        return {
+            pr,
             mergeable: res.data.mergeable
-        })
+        }
     })
 
-    await Promise.all(merges)
+    const mergeable = await Promise.all(mergeableStatuses)
+
+    prs = mergeable.map(ms => {
+        if (ms.mergeable) {
+            return ms.pr
+        }
+        console.log(`Skiping PR ${ms.pr.number} because it's not mergeable`);
+        return null
+    }). filter(pr => pr)
     
-    const promises = prs.map(async(pr) => {
+    // Filtering PRs with failed checks
+    const checksStatuses = prs.map(async(pr) => {
         const conclusions = await octokit.request('GET /repos/{owner}/{repo}/commits/{ref}/check-runs', {
             ...repoInfo,
             ref: pr.head.ref,
@@ -80,9 +91,9 @@ async function getPrs() {
         }
     })
 
-    const responses = await Promise.all(promises)
+    const checksResponses = await Promise.all(checksStatuses)
 
-    prs = responses.map(res => {
+    prs = checksResponses.map(res => {
         const hasFailureChecks = res.checks.check_runs.filter(check => {
             return ['action_required', 'failure'].includes(check.conclusion)
         }).length > 0
