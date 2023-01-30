@@ -57,16 +57,19 @@ async function getPrs() {
     const prs = data.filter(async(pr) => {
         return !pr.draft
     })
-    console.log(`Loading ${prs.length} PRs`)
-
-    prs.map(async(pr) => {
+    
+    const promises = prs.map(async(pr) => {
         const conclusions = await octokit.request('GET /repos/{owner}/{repo}/commits/{ref}/check-runs', {
             ...repoInfo,
             ref: pr.head.ref
         })
-        console.log(conclusions.data);
+        return conclusions.data
     })
-    
+
+    const responses = await Promise.all(promises)
+    console.log(responses)
+
+    console.log(`Loading ${prs.length} PRs`)
     return prs
 }
 
@@ -94,7 +97,13 @@ async function conflictDetails(head) {
             format: 'vnd.github.merge-info-preview'
         }
     })
-    console.log(res.data);
+    const { data: { html_url, permalink_url, diff_url, patch_url } } = res
+    console.log(`Para conferir detalhes do conflito veja os links: 
+        html_url: ${html_url},
+        permalink_url: ${permalink_url},
+        diff_url: ${diff_url},
+        patch_url: ${patch_url},
+    `);
 }
 
 
