@@ -55,14 +55,17 @@ async function getPrs() {
     })
 
     const prs = data.filter(async(pr) => {
-        const conclusions = await octokit.request('GET /repos/:owner/:repo/commits/:ref/check-runs', {
-            ...repoInfo,
-            commit_sha: pr.head.sha
-        })
-        console.log(conclusions);
         return !pr.draft
     })
     console.log(`Loading ${prs.length} PRs`)
+
+    prs.map(async(pr) => {
+        const conclusions = await octokit.request('GET /repos/:owner/:repo/commits/:ref/check-runs', {
+            ...repoInfo,
+            ref: pr.head.ref
+        })
+        console.log(conclusions);
+    })
     
     return prs
 }
