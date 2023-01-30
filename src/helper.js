@@ -54,20 +54,28 @@ async function getPrs() {
         base: target,
     })
 
-    const prs = data.filter(async(pr) => {
-        return !pr.draft
-    })
+    let prs = data.filter(pr => !pr.draft)
     
     const promises = prs.map(async(pr) => {
         const conclusions = await octokit.request('GET /repos/{owner}/{repo}/commits/{ref}/check-runs', {
             ...repoInfo,
-            ref: pr.head.ref
+            ref: pr.head.ref,
         })
-        return conclusions.data
+        return {
+            checks: conclusions.data,
+            pr
+        }
     })
 
     const responses = await Promise.all(promises)
-    console.log(responses)
+    prs = responses.map(res => {
+        const hasFailureChecks = res.checks.check_runs.filter(check => {
+            return ['action_required', 'failure'].includes(check.conclusion)
+        }).length > 0
+
+        if (hasFailureChecks) return null
+        return res.pr
+    }).filter( pr => pr)
 
     console.log(`Loading ${prs.length} PRs`)
     return prs
