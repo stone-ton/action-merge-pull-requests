@@ -37,7 +37,7 @@ async function deleteBranch(branchName) {
             ref: branchName,
         })   
     } catch (error) {
-        if (err.message !== 'Reference does not exist') {
+        if (error.message !== 'Reference does not exist') {
             throw Error('Unexpected error on delete branch')
         }
         console.warn('Branch does not exists');
