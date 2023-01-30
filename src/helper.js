@@ -15,8 +15,7 @@ async function getLastCommitSha() {
         ref: ref
     })
 
-    console.log(`Successful get commit.
-    Commit message: ${data.commit.message}`);
+    console.log(`Successful get commit with message: ${data.commit.message}`);
 
     return data.sha
 }
@@ -55,6 +54,20 @@ async function getPrs() {
     })
 
     let prs = data.filter(pr => !pr.draft)
+
+    const merges = prs.map(async(pr) => {
+        const res = await octokit.request('GET /repos/{owner}/{repo}/pulls/{pull_number}', {
+            ...repoInfo,
+            pull_number: pr.number
+        })
+        
+        console.log( {
+            pr: pr.number,
+            mergeable: res.data.mergeable
+        })
+    })
+
+    await Promise.all(merges)
     
     const promises = prs.map(async(pr) => {
         const conclusions = await octokit.request('GET /repos/{owner}/{repo}/commits/{ref}/check-runs', {
@@ -68,13 +81,14 @@ async function getPrs() {
     })
 
     const responses = await Promise.all(promises)
+
     prs = responses.map(res => {
         const hasFailureChecks = res.checks.check_runs.filter(check => {
             return ['action_required', 'failure'].includes(check.conclusion)
         }).length > 0
 
         if (hasFailureChecks) {
-            console.log(`PR ${res.pr.number} because it has failing checks`);
+            console.log(`Skiping PR ${res.pr.number} because it has failing checks`);
             return null
         }
         return res.pr
