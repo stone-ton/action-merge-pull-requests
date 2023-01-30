@@ -36,14 +36,13 @@ async function deleteBranch(branchName) {
             ...repoInfo,
             ref: branchName,
         })   
+        console.log('Successful delete branch')
     } catch (error) {
         if (error.message !== 'Reference does not exist') {
             throw Error('Unexpected error on delete branch')
         }
         console.warn('Branch does not exists');
     }
-
-    console.log('Successful delete branch')
 }
 
 async function mergeBranchs(pullHeadRef) {
