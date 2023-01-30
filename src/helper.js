@@ -1,6 +1,6 @@
 const github = require('@actions/github')
 
-const { deployRefHead, deployRefName, repoInfo, token, target, ref } = require('./constants')
+const { deployRefHead, deployRefName, repoInfo, token, target, ref, deployBranchName } = require('./constants')
 const octokit = github.getOctokit(token)
 
 const timestamp = new Date().getTime()
@@ -54,7 +54,14 @@ async function getPrs() {
         base: target,
     })
 
-    const prs = data.filter(pr => !pr.draft)
+    const prs = data.filter(async(pr) => {
+        const conclusions = await octokit.request('GET /repos/:owner/:repo/commits/:ref/check-runs', {
+            ...repoInfo,
+            commit_sha: pr.head.sha
+        })
+        console.log(conclusions);
+        return !pr.draft
+    })
     console.log(`Loading ${prs.length} PRs`)
     
     return prs
@@ -75,7 +82,8 @@ async function createBranch(branchName, commitSha) {
     })
 }
 
-async function conflictDetails(base, head) {
+async function conflictDetails(head) {
+    const base = `${deployBranchName-timestamp}`
     const res = await octokit.request('GET /repos/{owner}/{repo}/compare/{basehead}{?page,per_page}', {
         ...repoInfo,
         basehead: `${base}...${head}`,
@@ -83,7 +91,7 @@ async function conflictDetails(base, head) {
             format: 'vnd.github.merge-info-preview'
         }
     })
-    console.log(res);
+    console.log(res.data);
 }
 
 
