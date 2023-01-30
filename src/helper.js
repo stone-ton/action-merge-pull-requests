@@ -64,7 +64,7 @@ async function getPrs() {
             ...repoInfo,
             ref: pr.head.ref
         })
-        console.log(conclusions);
+        console.log(conclusions.data);
     })
     
     return prs
@@ -86,7 +86,7 @@ async function createBranch(branchName, commitSha) {
 }
 
 async function conflictDetails(head) {
-    const base = `${deployBranchName-timestamp}`
+    const base = `${deployBranchName}-${timestamp}`
     const res = await octokit.request('GET /repos/{owner}/{repo}/compare/{basehead}{?page,per_page}', {
         ...repoInfo,
         basehead: `${base}...${head}`,
