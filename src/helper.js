@@ -156,13 +156,15 @@ async function conflictDetails(head) {
         patch_url: ${patch_url},
     `)
 
-    await octokit.request('POST /repos/{owner}/{repo}/check-runs', {
+    const res2 = await octokit.request('POST /repos/{owner}/{repo}/check-runs', {
         ...repoInfo,
         name: 'merge-pull-requests',
         head_sha: prSha,
         status: 'completed',
         conclusion: 'action_required'
     })
+
+    console.log(res2);
 }
 
 
