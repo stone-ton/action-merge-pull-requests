@@ -8,6 +8,7 @@ async function run() {
     const pullRequests = await getPrs()
 
     let lastBranchToMerge
+    let mergeError
     try {
         let lastMergeCommitSha
         for (let pull of pullRequests) {
@@ -22,10 +23,14 @@ async function run() {
         }
         await recreateDeployBranch(lastMergeCommitSha)
     } catch(error) {
-        console.log(error);
+        mergeError = error
         await conflictDetails(lastBranchToMerge)
     } finally {
         await deleteBranch(workBranchName)
+    }
+
+    if (mergeError) {
+        throw mergeError
     }
 }
 

@@ -101,8 +101,7 @@ async function getPrs() {
 
     prs = checksResponses.map(res => {
         const hasFailureChecks = res.checks.check_runs.filter(check => {
-            console.log(prNumber);
-            return check.name !== 'merge-pull-requests'
+            return res.pr.number !== prNumber && check.name !== 'merge-pull-requests'
         }).filter(check => {
             return ['action_required', 'failure'].includes(check.conclusion)
         }).length > 0

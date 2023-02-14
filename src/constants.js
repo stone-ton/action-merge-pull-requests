@@ -7,7 +7,7 @@ const target = process.env.INPUT_PULL_REQUESTS_BASE_BRANCH
 const ref = `heads/${target}`
 
 const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/')
-const prNumber = process.env.GITHUB_REF.split('/')
+const prNumber = Number.parseInt(process.env.GITHUB_REF.split('/')[2])
 
 const repoInfo = { owner, repo }
 
