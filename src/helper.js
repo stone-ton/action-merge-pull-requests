@@ -1,6 +1,6 @@
 const github = require('@actions/github')
 
-const { deployRefHead, deployRefName, repoInfo, token, target, ref, deployBranchName } = require('./constants')
+const { deployRefHead, deployRefName, repoInfo, token, target, ref, deployBranchName, prNumber } = require('./constants')
 const octokit = github.getOctokit(token)
 
 const timestamp = new Date().getTime()
@@ -100,9 +100,9 @@ async function getPrs() {
     const checksResponses = await Promise.all(checksStatuses)
 
     prs = checksResponses.map(res => {
-        const hasFailureChecks = res.checks.check_runs.map(check => {
-            console.log(check.name);
-            return check
+        const hasFailureChecks = res.checks.check_runs.filter(check => {
+            console.log(prNumber);
+            return check.name !== 'merge-pull-requests'
         }).filter(check => {
             return ['action_required', 'failure'].includes(check.conclusion)
         }).length > 0
