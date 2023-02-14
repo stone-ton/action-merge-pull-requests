@@ -102,6 +102,9 @@ async function getPrs() {
 
     prs = checksResponses.map(res => {
         const hasFailureChecks = res.checks.check_runs.filter(check => {
+            if (res.pr.number === prNumber) {
+                console.log(res.pr.number, check.name, check.conclusion);
+            }
             return ['action_required', 'cancelled', 'timed_out', 'failure'].includes(check.conclusion)
         }).filter(check => {
             if (res.pr.number === prNumber) {
