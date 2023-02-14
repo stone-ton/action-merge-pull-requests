@@ -9,35 +9,35 @@ const auxBranchName = `${deployRefHead}-${timestamp}`
 const auxBranchRef = `${deployRefName}-${timestamp}`
 
 async function getLastCommitSha() {
-    core.debug(`Getting last commit from branch ${ref}`);
+    core.info(`Getting last commit from branch ${ref}`);
 
     const { data } = await octokit.rest.repos.getCommit({
         ...repoInfo,
         ref: ref
     })
 
-    core.debug(`Successful get commit with message: ${data.commit.message}`);
+    core.info(`Successful get commit with message: ${data.commit.message}`);
 
     return data.sha
 }
 
 async function createAuxBranch(commitSha) {
-    core.debug(`Creating branch ${auxBranchName}`)
+    core.info(`Creating branch ${auxBranchName}`)
     await createBranch(auxBranchName, commitSha)
-    core.debug(`Successful create branch`)
+    core.info(`Successful create branch`)
 
     return auxBranchRef
 }
 
 async function deleteBranch(branchName) {
-    core.debug(`Deleting branch ${branchName}`)
+    core.info(`Deleting branch ${branchName}`)
 
     try {
         await octokit.rest.git.deleteRef({
             ...repoInfo,
             ref: branchName,
         })   
-        core.debug('Successful delete branch')
+        core.info('Successful delete branch')
     } catch (error) {
         if (error.message !== 'Reference does not exist') {
             throw Error('Unexpected error on delete branch')
@@ -82,7 +82,7 @@ async function getPrs() {
         if (ms.mergeable) {
             return ms.pr
         }
-        core.debug(`Skiping PR ${ms.pr.number} because it's not mergeable`);
+        core.info(`Skiping PR ${ms.pr.number} because it's not mergeable`);
         return null
     }). filter(pr => pr)
     
@@ -103,7 +103,7 @@ async function getPrs() {
     prs = checksResponses.map(res => {
         const hasFailureChecks = res.checks.check_runs.filter(check => {
             if (res.pr.number === prNumber) {
-                core.debug(res.pr.number, check.name, check.conclusion);
+                console.log(res.pr.number, check.name, check.conclusion);
             }
             return ['action_required', 'failure'].includes(check.conclusion)
         }).filter(check => {
@@ -114,21 +114,21 @@ async function getPrs() {
         }).length > 0
 
         if (hasFailureChecks) {
-            core.debug(`Skiping PR ${res.pr.number} because it has failing checks`);
+            core.info(`Skiping PR ${res.pr.number} because it has failing checks`);
             return null
         }
         return res.pr
     }).filter(pr => pr)
 
-    core.debug(`Loading ${prs.length} PRs`)
+    core.info(`Loading ${prs.length} PRs`)
     return prs
 }
 
 async function recreateDeployBranch(commitSha) {
-    core.debug(`Recreating branch ${deployRefHead}`)
+    core.info(`Recreating branch ${deployRefHead}`)
     await deleteBranch(deployRefName)
     await createBranch(deployRefHead, commitSha)
-    core.debug(`Successful create branch`)
+    core.info(`Successful create branch`)
 }
 
 async function createBranch(branchName, commitSha) {
