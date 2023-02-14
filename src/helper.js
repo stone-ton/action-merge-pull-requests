@@ -102,10 +102,7 @@ async function getPrs() {
 
     prs = checksResponses.map(res => {
         const hasFailureChecks = res.checks.check_runs.filter(check => {
-            if (res.pr.number === prNumber) {
-                console.log(res.pr.number, check.name, check.conclusion);
-            }
-            return ['action_required', 'failure'].includes(check.conclusion)
+            return ['action_required', 'cancelled', 'timed_out', 'failure'].includes(check.conclusion)
         }).filter(check => {
             if (res.pr.number === prNumber) {
                 return check.name !== 'merge-pull-requests'
@@ -154,8 +151,15 @@ async function conflictDetails(head) {
         permalink_url: ${permalink_url},
         diff_url: ${diff_url},
         patch_url: ${patch_url},
-    `);
-    core.status
+    `)
+
+    await octokit.request('POST /repos/{owner}/{repo}/check-runs', {
+        ...repoInfo,
+        name: 'merge-pull-requests',
+        head_sha: 'ce587453ced02b1526dfb4cb910479d431683101',
+        status: 'completed',
+        conclusion: 'action_required'
+    })
 }
 
 
