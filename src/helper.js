@@ -100,7 +100,10 @@ async function getPrs() {
     const checksResponses = await Promise.all(checksStatuses)
 
     prs = checksResponses.map(res => {
-        const hasFailureChecks = res.checks.check_runs.filter(check => {
+        const hasFailureChecks = res.checks.check_runs.map(check => {
+            console.log(check.name);
+            return check
+        }).filter(check => {
             return ['action_required', 'failure'].includes(check.conclusion)
         }).length > 0
 
