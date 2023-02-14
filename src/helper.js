@@ -103,6 +103,7 @@ async function getPrs() {
         const hasFailureChecks = res.checks.check_runs.filter(check => {
             return ['action_required', 'failure'].includes(check.conclusion)
         }).filter(check => {
+            console.log(res.pr.number, check.name);
             if (res.pr.number === prNumber) {
                 return check.name !== 'merge-pull-requests'
             }
@@ -114,7 +115,7 @@ async function getPrs() {
             return null
         }
         return res.pr
-    }).filter( pr => pr)
+    }).filter(pr => pr)
 
     console.log(`Loading ${prs.length} PRs`)
     return prs
