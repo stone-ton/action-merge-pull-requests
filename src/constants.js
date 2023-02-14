@@ -8,6 +8,7 @@ const ref = `heads/${target}`
 
 const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/')
 const prNumber = Number.parseInt(process.env.GITHUB_REF.split('/')[2])
+const prSha = process.env.GITHUB_SHA
 
 const repoInfo = { owner, repo }
 
@@ -18,6 +19,7 @@ module.exports =  {
     repoInfo,
     token,
     prNumber,
+    prSha,
     target,
     ref,
 }

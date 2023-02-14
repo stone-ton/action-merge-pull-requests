@@ -1,7 +1,7 @@
 const core = require('@actions/core')
 const github = require('@actions/github')
 
-const { deployRefHead, deployRefName, repoInfo, token, target, ref, deployBranchName, prNumber } = require('./constants')
+const { deployRefHead, deployRefName, repoInfo, token, target, ref, deployBranchName, prNumber, prSha } = require('./constants')
 const octokit = github.getOctokit(token)
 
 const timestamp = new Date().getTime()
@@ -156,7 +156,7 @@ async function conflictDetails(head) {
     await octokit.request('POST /repos/{owner}/{repo}/check-runs', {
         ...repoInfo,
         name: 'merge-pull-requests',
-        head_sha: 'ce587453ced02b1526dfb4cb910479d431683101',
+        head_sha: prSha,
         status: 'completed',
         conclusion: 'action_required'
     })
