@@ -1,4 +1,5 @@
-const { getLastCommitSha, createAuxBranch, deleteBranch, getPrs, mergeBranchs, recreateDeployBranch } = require('./helper')
+const core = require('@actions/core')
+const { getLastCommitSha, createAuxBranch, deleteBranch, getPrs, mergeBranchs, recreateDeployBranch, conflictDetails } = require('./helper')
 
 async function run() {
     const baseLastCommit = await getLastCommitSha()
@@ -7,17 +8,22 @@ async function run() {
 
     const pullRequests = await getPrs()
 
+    let lastBranchToMerge
     try {
         let lastMergeCommitSha
         for (let pull of pullRequests) {
-            console.log(`Merging PR ${pull.number}`)
+            core.info(`Merging PR ${pull.number}`)
+            lastBranchToMerge = pull.head.ref
+
             const { data } = await mergeBranchs(pull.head.ref)
 
-            console.log(`Successful merge PR ${pull.number}`);
+            core.info(`Successful merge PR ${pull.number}`);
             
             lastMergeCommitSha = data.sha
         }
         await recreateDeployBranch(lastMergeCommitSha)
+    } catch(error) {
+        await conflictDetails(lastBranchToMerge)
     } finally {
         await deleteBranch(workBranchName)
     }
