@@ -61,7 +61,10 @@ async function getPrs() {
     })
 
     // Filtering draft PRs
-    let prs = data.filter(pr => !pr.draft)
+    let prs = data.filter(pr =>
+        !pr.draft
+        && pr.labels.some(label => label.name === 'release:33.0.0')
+    )
 
     // Filtering PRs with merge conflicts with base or pending required reviews
     const mergeableStatuses = prs.map(async(pr) => {
@@ -82,7 +85,7 @@ async function getPrs() {
         if (ms.mergeable) {
             return ms.pr
         }
-        core.info(`Skiping PR ${ms.pr.number} because it's not mergeable`);
+        core.info(`Skiping PR ${ms.pr.number} because it's not mergeable. Reason: ${ms.pr.mergeable_state}`);
         return null
     }). filter(pr => pr)
     
@@ -101,18 +104,19 @@ async function getPrs() {
     const checksResponses = await Promise.all(checksStatuses)
 
     prs = checksResponses.map(res => {
-        const hasFailureChecks = res.checks.check_runs.filter(check => {
-            /**
-             * For the releted PR, the action status will be (null) at this point because it's in progress.
-             * It prevents from skip current pr if last check run from this action had report failure status.
-             */
-            return ['action_required', 'cancelled', 'timed_out', 'failure'].includes(check.conclusion)
-        }).length > 0
+        // const failureChecks = res.checks.check_runs.filter(check => {
+        //     /**
+        //      * For the releted PR, the action status will be (null) at this point because it's in progress.
+        //      * It prevents from skip current pr if last check run from this action had report failure status.
+        //      */
+        //     return ['action_required', 'cancelled', 'timed_out', 'failure'].includes(check.conclusion)
+        // })
 
-        if (hasFailureChecks) {
-            core.info(`Skiping PR ${res.pr.number} because it has failing checks`);
-            return null
-        }
+        // if (failureChecks.length > 0) {
+        //     core.info(`Skiping PR ${res.pr.number} because it has failing checks. Checks: `);
+        //     core.info(failureChecks.map(check => `  - ${check.name} (${check.conclusion})`).join('\n'))
+        //     return null
+        // }
         return res.pr
     }).filter(pr => pr)
 
